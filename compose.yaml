@@ -1,0 +1,25 @@
+name: yrrp-ota
+
+services:
+  ota:
+    image: ${OTA_RELEASE_IMAGE:?Set OTA_RELEASE_IMAGE}
+    container_name: yrrp-ota-server
+    hostname: ota-server
+    init: true
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      proxy-net:
+        aliases:
+          - ota-server
+
+networks:
+  proxy-net:
+    name: proxy-net
+    external: true
