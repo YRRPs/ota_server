@@ -73,6 +73,9 @@ grep -q 'synthetic-ota.zip' <<<"${metadata_response}"
 
 listing_response=$(request "${base_url}/install/salami/")
 grep -q '20990101-000000/' <<<"${listing_response}"
+build_listing=$(request "${base_url}/install/salami/20990101-000000/")
+grep -q 'synthetic-ota.zip' <<<"${build_listing}"
+grep -q 'boot.img' <<<"${build_listing}"
 
 test "$(curl --silent --output /dev/null --write-out '%{http_code}' "${base_url}/")" = 404
 test "$(curl --silent --output /dev/null --write-out '%{http_code}' "${base_url}/updates/")" = 404
