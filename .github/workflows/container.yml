@@ -12,7 +12,7 @@ on:
 permissions: {}
 
 env:
-  IMAGE_NAME: ghcr.io/yim-s-riced-rom-project/ota-server
+  IMAGE_NAME: ghcr.io/yrrps/ota-server
 
 jobs:
   validate:

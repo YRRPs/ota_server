@@ -1,6 +1,6 @@
 FROM nginx:1.31-alpine@sha256:df221db836e1754089190208cee7eeda94f233197056426eda74a43ab1abeac2
 
-LABEL org.opencontainers.image.source="https://github.com/Yim-s-Riced-ROM-Project/ota_server" \
+LABEL org.opencontainers.image.source="https://github.com/YRRPs/ota_server" \
       org.opencontainers.image.description="YRRP static OTA server base" \
       org.opencontainers.image.licenses="Apache-2.0"
 

@@ -22,7 +22,7 @@ docker build -t yrrp-ota-base .
 Published image:
 
 ```text
-ghcr.io/yim-s-riced-rom-project/ota-server:main
+ghcr.io/yrrps/ota-server:main
 ```
 
 Release image must inherit base by immutable digest and copy this exact tree:
