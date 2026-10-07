@@ -10,7 +10,9 @@ if [ -e "${output}" ]; then
     exit 1
 fi
 
-mkdir -p "${output}/rootfs/updates" "${release_dir}"
+mkdir -p "${output}/rootfs/updates/salami" "${release_dir}"
+printf 'synthetic-incremental\n' > "${release_dir}/synthetic-incremental.zip"
+printf '%s\n' '[{"datetime":4070908800,"files":[{"filename":"synthetic-incremental.zip","sha256":"synthetic","size":22,"url":"https://ota.example.invalid/install/salami/20990101-000000/synthetic-incremental.zip"}],"type":"UNOFFICIAL","version":"23.2"}]' > "${output}/rootfs/updates/salami/4070822400.json"
 printf 'synthetic-range-payload\n' > "${release_dir}/synthetic-ota.zip"
 printf 'synthetic-boot\n' > "${release_dir}/boot.img"
 printf '%s\n' '[{"datetime":4070908800,"files":[{"filename":"synthetic-ota.zip","sha256":"synthetic","size":24,"url":"https://ota.example.invalid/install/salami/20990101-000000/synthetic-ota.zip"}],"type":"UNOFFICIAL","version":"23.2"}]' > "${output}/rootfs/updates/salami.json"
