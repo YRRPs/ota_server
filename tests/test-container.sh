@@ -88,6 +88,25 @@ grep -q 'HTTP/1.1 206 Partial Content' <<<"${range_headers}"
 grep -qi 'Content-Range: bytes 0-8/24' <<<"${range_headers}"
 test "$(curl --silent --show-error --range 0-8 "${base_url}/install/salami/20990101-000000/synthetic-ota.zip")" = synthetic
 
+incremental_response=$(request "${base_url}/updates/salami/4070822400.json")
+grep -q 'HTTP/1.1 200 OK' <<<"${incremental_response}"
+grep -qi 'Content-Type: application/json' <<<"${incremental_response}"
+grep -qi 'Cache-Control: no-cache' <<<"${incremental_response}"
+grep -q 'synthetic-incremental.zip' <<<"${incremental_response}"
+
+fallback_response=$(request "${base_url}/updates/salami/1.json")
+grep -q 'HTTP/1.1 200 OK' <<<"${fallback_response}"
+grep -qi 'Cache-Control: no-cache' <<<"${fallback_response}"
+grep -q 'synthetic-ota.zip' <<<"${fallback_response}"
+if grep -qi '^Location:' <<<"${fallback_response}"; then
+    echo 'incremental fallback must not redirect' >&2
+    exit 1
+fi
+
+for path in /updates/salami/abc.json /updates/salami/1/2.json /updates/salami/1.json.bak /updates/salami/; do
+    test "$(curl --silent --output /dev/null --write-out '%{http_code}' "${base_url}${path}")" = 404
+done
+test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request POST --data x "${base_url}/updates/salami/1.json")" = 403
 test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request POST --data x "${base_url}/healthz")" = 403
 
 printf 'OTA container contract passed\n'
