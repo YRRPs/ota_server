@@ -11,7 +11,7 @@ Hardened Nginx base image for latest YRRP release. Repository publishes server b
 | `/updates/salami/<incr>.json` | Vanilla incremental metadata, falls back internally to `salami.json` |
 | `/updates/salami/gapps.json` | Gapps channel: updater metadata |
 | `/updates/salami/gapps/<incr>.json` | Gapps incremental metadata, falls back internally to `gapps.json` |
-| `/install/salami/` | Scoped clean-install file browser (vanilla builds) |
+| `/install/salami/` | Scoped clean-install file browser (vanilla builds; also lists the `gapps/` directory) |
 | `/install/salami/<build-id>/` | One immutable signed vanilla release |
 | `/install/salami/gapps/` | Gapps clean-install file browser |
 | `/install/salami/gapps/<build-id>/` | One immutable signed gapps release |

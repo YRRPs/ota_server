@@ -116,10 +116,12 @@ grep -q 'gapps-ota.zip' <<<"${gapps_full}"
 
 gapps_incremental=$(request "${base_url}/updates/salami/gapps/4070822400.json")
 grep -q 'gapps-incremental.zip' <<<"${gapps_incremental}"
+grep -qi 'Cache-Control: no-cache' <<<"${gapps_incremental}"
 
 gapps_fallback=$(request "${base_url}/updates/salami/gapps/1.json")
 grep -q 'HTTP/1.1 200 OK' <<<"${gapps_fallback}"
 grep -q 'gapps-ota.zip' <<<"${gapps_fallback}"
+grep -qi 'Cache-Control: no-cache' <<<"${gapps_fallback}"
 if grep -qi '^Location:' <<<"${gapps_fallback}"; then
     echo 'gapps fallback must not redirect' >&2
     exit 1
@@ -131,8 +133,11 @@ grep -q 'synthetic-ota.zip' <<<"$(request "${base_url}/updates/salami/1.json")"
 gapps_index=$(request "${base_url}/install/salami/gapps/")
 grep -q 'HTTP/1.1 200 OK' <<<"${gapps_index}"
 grep -q '20990101-000000/' <<<"${gapps_index}"
+grep -qi 'Cache-Control: no-cache' <<<"${gapps_index}"
 gapps_listing=$(request "${base_url}/install/salami/gapps/20990101-000000/")
 grep -q 'gapps-ota.zip' <<<"${gapps_listing}"
+grep -qi 'Cache-Control: public, max-age=31536000, immutable' <<<"${gapps_listing}"
+test "$(curl --silent --output /dev/null --write-out '%{http_code}' "${base_url}/install/salami/gapps/notabuild/")" = 404
 grep -q 'HTTP/1.1 206 Partial Content' <<<"$(curl --silent --dump-header - --output /dev/null --range 0-3 "${base_url}/install/salami/gapps/20990101-000000/gapps-ota.zip")"
 
 for path in /updates/salami/vanilla.json /updates/salami/gapps/abc.json /updates/salami/gapps/1/2.json \
