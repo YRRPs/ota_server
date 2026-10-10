@@ -145,5 +145,21 @@ for path in /updates/salami/vanilla.json /updates/salami/gapps/abc.json /updates
     test "$(curl --silent --output /dev/null --write-out '%{http_code}' "${base_url}${path}")" = 404
 done
 test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request POST --data x "${base_url}/updates/salami/gapps/1.json")" = 403
+test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request POST --data x "${base_url}/updates/salami/gapps.json")" = 403
+test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request POST --data x "${base_url}/install/salami/gapps/")" = 403
+
+# Traversal must never escape the served root, on either channel.
+for path in /updates/salami/gapps/../../../etc/passwd /install/salami/gapps/../../../etc/passwd /install/salami/../../etc/passwd; do
+    body=${scratch}/traversal-body
+    status=$(curl --silent --path-as-is --output "${body}" --write-out '%{http_code}' "${base_url}${path}")
+    case "${status}" in
+        400|404) ;;
+        *) echo "traversal ${path} returned ${status}" >&2; exit 1 ;;
+    esac
+    if grep -q 'root:' "${body}"; then
+        echo "traversal ${path} leaked passwd content" >&2
+        exit 1
+    fi
+done
 
 printf 'OTA container contract passed\n'
