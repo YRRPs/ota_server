@@ -128,6 +128,9 @@ fi
 # Vanilla stays on its own channel.
 grep -q 'synthetic-ota.zip' <<<"$(request "${base_url}/updates/salami/1.json")"
 
+gapps_index=$(request "${base_url}/install/salami/gapps/")
+grep -q 'HTTP/1.1 200 OK' <<<"${gapps_index}"
+grep -q '20990101-000000/' <<<"${gapps_index}"
 gapps_listing=$(request "${base_url}/install/salami/gapps/20990101-000000/")
 grep -q 'gapps-ota.zip' <<<"${gapps_listing}"
 grep -q 'HTTP/1.1 206 Partial Content' <<<"$(curl --silent --dump-header - --output /dev/null --range 0-3 "${base_url}/install/salami/gapps/20990101-000000/gapps-ota.zip")"
