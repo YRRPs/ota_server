@@ -7,9 +7,16 @@ Hardened Nginx base image for latest YRRP release. Repository publishes server b
 | Route | Purpose |
 | --- | --- |
 | `/healthz` | Container health |
-| `/updates/salami.json` | LineageOS 23.2 updater metadata |
-| `/install/salami/` | Scoped clean-install file browser |
-| `/install/salami/<build-id>/` | One immutable signed release |
+| `/updates/salami.json` | Vanilla channel: LineageOS 23.2 updater metadata |
+| `/updates/salami/<incr>.json` | Vanilla incremental metadata, falls back internally to `salami.json` |
+| `/updates/salami/gapps.json` | Gapps channel: updater metadata |
+| `/updates/salami/gapps/<incr>.json` | Gapps incremental metadata, falls back internally to `gapps.json` |
+| `/install/salami/` | Scoped clean-install file browser (vanilla builds) |
+| `/install/salami/<build-id>/` | One immutable signed vanilla release |
+| `/install/salami/gapps/` | Gapps clean-install file browser |
+| `/install/salami/gapps/<build-id>/` | One immutable signed gapps release |
+
+Each device and build type pair is a channel (`salami/vanilla`, `salami/gapps`). Vanilla keeps its original URLs; gapps routes insert `gapps` after `salami`. `/updates/salami/vanilla.json` does not exist.
 
 Nginx denies every other route and accepts GET/HEAD only. Static serving supports byte ranges required by LineageOS updater.
 
@@ -29,7 +36,9 @@ Release image must inherit base by immutable digest and copy this exact tree:
 
 ```text
 /srv/ota/updates/salami.json
+/srv/ota/updates/salami/gapps.json
 /srv/ota/install/salami/<build-id>/
+/srv/ota/install/salami/gapps/<build-id>/
 ```
 
 Release directory contains signed OTA once, six signed install images, `SHA256SUMS.txt`, and `release.json`. Never include target-files, GApps, signing keys, unsigned builds, or previous releases.
@@ -54,7 +63,7 @@ Tests build synthetic release only. No real OTA or signing material enters test 
 
 ## Directory browsing
 
-Nginx autoindex defaults off. This image enables it only under `/install/salami/`. Root and `/updates/` remain unlisted.
+Nginx autoindex defaults off. This image enables it only under `/install/salami/` (including `/install/salami/gapps/`). Root and `/updates/` remain unlisted.
 
 ## Scope
 
