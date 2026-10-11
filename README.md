@@ -15,8 +15,12 @@ Hardened Nginx base image for latest YRRP release. Repository publishes server b
 | `/install/salami/<build-id>/` | One immutable signed vanilla release |
 | `/install/salami/gapps/` | Gapps clean-install file browser |
 | `/install/salami/gapps/<build-id>/` | One immutable signed gapps release |
+| `/updates/xueying/gapps.json` | xueying gapps channel: updater metadata |
+| `/updates/xueying/gapps/<incr>.json` | xueying gapps incremental metadata, falls back internally to `xueying/gapps.json` |
+| `/install/xueying/gapps/` | xueying gapps clean-install file browser |
+| `/install/xueying/gapps/<build-id>/` | One immutable signed xueying gapps release |
 
-Each device and build type pair is a channel (`salami/vanilla`, `salami/gapps`). Vanilla keeps its original URLs; gapps routes insert `gapps` after `salami`. `/updates/salami/vanilla.json` does not exist.
+Each device and build type pair is a channel (`salami/vanilla`, `salami/gapps`, `xueying/gapps`). Vanilla keeps its original URLs; other types insert the type after the device. `/updates/salami/vanilla.json` does not exist. xueying has no vanilla channel, so `/updates/xueying.json` and `/install/xueying/` return 404. Every channel gets explicit locations; there is no generic device or type route.
 
 Nginx denies every other route and accepts GET/HEAD only. Static serving supports byte ranges required by LineageOS updater.
 
@@ -39,6 +43,8 @@ Release image must inherit base by immutable digest and copy this exact tree:
 /srv/ota/updates/salami/gapps.json
 /srv/ota/install/salami/<build-id>/
 /srv/ota/install/salami/gapps/<build-id>/
+/srv/ota/updates/xueying/gapps.json
+/srv/ota/install/xueying/gapps/<build-id>/
 ```
 
 Release directory contains signed OTA once, six signed install images, `SHA256SUMS.txt`, and `release.json`. Never include target-files, GApps, signing keys, unsigned builds, or previous releases.
