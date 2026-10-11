@@ -25,6 +25,13 @@ printf '%s\n' '[{"datetime":4070908800,"files":[{"filename":"gapps-incremental.z
 printf 'gapps-ota-payload\n' > "${gapps_dir}/gapps-ota.zip"
 printf '%s\n' '[{"datetime":4070908800,"files":[{"filename":"gapps-ota.zip","sha256":"synthetic","size":18,"url":"https://ota.example.invalid/install/salami/gapps/20990101-000000/gapps-ota.zip"}],"type":"UNOFFICIAL","version":"23.2"}]' > "${output}/rootfs/updates/salami/gapps.json"
 printf '%s\n' '{"schema":3,"synthetic":true}' > "${gapps_dir}/release.json"
+xueying_dir=${output}/rootfs/install/xueying/gapps/${build_id}
+mkdir -p "${output}/rootfs/updates/xueying/gapps" "${xueying_dir}"
+printf 'xueying-incremental\n' > "${xueying_dir}/xueying-incremental.zip"
+printf '%s\n' '[{"datetime":4070908800,"files":[{"filename":"xueying-incremental.zip","sha256":"synthetic","size":20,"url":"https://ota.example.invalid/install/xueying/gapps/20990101-000000/xueying-incremental.zip"}],"type":"UNOFFICIAL","version":"23.2"}]' > "${output}/rootfs/updates/xueying/gapps/4070822400.json"
+printf 'xueying-ota-payload\n' > "${xueying_dir}/xueying-ota.zip"
+printf '%s\n' '[{"datetime":4070908800,"files":[{"filename":"xueying-ota.zip","sha256":"synthetic","size":20,"url":"https://ota.example.invalid/install/xueying/gapps/20990101-000000/xueying-ota.zip"}],"type":"UNOFFICIAL","version":"23.2"}]' > "${output}/rootfs/updates/xueying/gapps.json"
+printf '%s\n' '{"schema":3,"synthetic":true}' > "${xueying_dir}/release.json"
 cat > "${output}/Dockerfile" <<'EOF'
 FROM yrrp-ota-base-test
 COPY --chown=101:101 rootfs/ /srv/ota/

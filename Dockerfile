@@ -7,7 +7,8 @@ LABEL org.opencontainers.image.source="https://github.com/YRRPs/ota_server" \
 USER root
 RUN rm -f /etc/nginx/conf.d/default.conf \
     && install -d -o nginx -g nginx /srv/ota/updates /srv/ota/install/salami \
-        /srv/ota/updates/salami/gapps /srv/ota/install/salami/gapps
+        /srv/ota/updates/salami/gapps /srv/ota/install/salami/gapps \
+        /srv/ota/updates/xueying/gapps /srv/ota/install/xueying/gapps
 
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 

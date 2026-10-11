@@ -148,8 +148,52 @@ test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request PO
 test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request POST --data x "${base_url}/updates/salami/gapps.json")" = 403
 test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request POST --data x "${base_url}/install/salami/gapps/")" = 403
 
+# xueying/gapps is its own channel; xueying has no vanilla routes.
+xueying_full=$(request "${base_url}/updates/xueying/gapps.json")
+grep -q 'HTTP/1.1 200 OK' <<<"${xueying_full}"
+grep -qi 'Content-Type: application/json' <<<"${xueying_full}"
+grep -qi 'Cache-Control: no-cache' <<<"${xueying_full}"
+grep -q 'xueying-ota.zip' <<<"${xueying_full}"
+
+xueying_incremental=$(request "${base_url}/updates/xueying/gapps/4070822400.json")
+grep -q 'xueying-incremental.zip' <<<"${xueying_incremental}"
+grep -qi 'Cache-Control: no-cache' <<<"${xueying_incremental}"
+
+xueying_fallback=$(request "${base_url}/updates/xueying/gapps/1.json")
+grep -q 'HTTP/1.1 200 OK' <<<"${xueying_fallback}"
+grep -q 'xueying-ota.zip' <<<"${xueying_fallback}"
+grep -qi 'Cache-Control: no-cache' <<<"${xueying_fallback}"
+if grep -qi '^Location:' <<<"${xueying_fallback}"; then
+    echo 'xueying gapps fallback must not redirect' >&2
+    exit 1
+fi
+
+# Salami gapps stays on its own channel.
+grep -q 'gapps-ota.zip' <<<"$(request "${base_url}/updates/salami/gapps/1.json")"
+
+xueying_index=$(request "${base_url}/install/xueying/gapps/")
+grep -q 'HTTP/1.1 200 OK' <<<"${xueying_index}"
+grep -q '20990101-000000/' <<<"${xueying_index}"
+grep -qi 'Cache-Control: no-cache' <<<"${xueying_index}"
+xueying_listing=$(request "${base_url}/install/xueying/gapps/20990101-000000/")
+grep -q 'xueying-ota.zip' <<<"${xueying_listing}"
+grep -qi 'Cache-Control: public, max-age=31536000, immutable' <<<"${xueying_listing}"
+xueying_range=$(curl --silent --show-error --dump-header - --output /dev/null --range 0-6 "${base_url}/install/xueying/gapps/20990101-000000/xueying-ota.zip")
+grep -q 'HTTP/1.1 206 Partial Content' <<<"${xueying_range}"
+grep -qi 'Content-Range: bytes 0-6/20' <<<"${xueying_range}"
+
+for path in /updates/xueying.json /updates/xueying/1.json /updates/xueying/vanilla.json /updates/xueying/gapps/ \
+            /updates/xueying/gapps/abc.json /updates/xueying/gapps/1/2.json /updates/xueying/gapps.json.bak \
+            /install/xueying/ /install/xueying/20990101-000000/ /install/xueying/gapps/notabuild/; do
+    test "$(curl --silent --output /dev/null --write-out '%{http_code}' "${base_url}${path}")" = 404
+done
+test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request POST --data x "${base_url}/updates/xueying/gapps.json")" = 403
+test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request POST --data x "${base_url}/updates/xueying/gapps/1.json")" = 403
+test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request POST --data x "${base_url}/install/xueying/gapps/")" = 403
+
 # Traversal must never escape the served root, on either channel.
-for path in /updates/salami/gapps/../../../etc/passwd /install/salami/gapps/../../../etc/passwd /install/salami/../../etc/passwd; do
+for path in /updates/salami/gapps/../../../etc/passwd /install/salami/gapps/../../../etc/passwd /install/salami/../../etc/passwd \
+            /updates/xueying/gapps/../../../etc/passwd /install/xueying/gapps/../../../etc/passwd; do
     body=${scratch}/traversal-body
     status=$(curl --silent --path-as-is --output "${body}" --write-out '%{http_code}' "${base_url}${path}")
     case "${status}" in
