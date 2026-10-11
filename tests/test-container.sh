@@ -26,6 +26,14 @@ require_file "${repo}/nginx/nginx.conf"
 
 "${repo}/tests/make-fixture.sh" "${scratch}/fixture"
 docker build -t yrrp-ota-base-test "${repo}"
+# The base image owns every channel directory, so an empty channel still serves its install index.
+for dir in /srv/ota/updates/salami/gapps /srv/ota/install/salami /srv/ota/install/salami/gapps \
+           /srv/ota/updates/xueying/gapps /srv/ota/install/xueying/gapps; do
+    docker run --rm --entrypoint test yrrp-ota-base-test -d "${dir}" || {
+        echo "base image lacks ${dir}" >&2
+        exit 1
+    }
+done
 docker build -t yrrp-ota-release-test "${scratch}/fixture"
 docker network create "${network}" >/dev/null
 
